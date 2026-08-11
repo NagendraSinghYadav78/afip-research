@@ -1,21 +1,40 @@
-MIT License
+Copyright (c) 2026 Nagendra Singh Yadav
+ORCID: https://orcid.org/0000-0002-9591-4491
 
-Copyright (c) 2026
+All rights reserved, subject to the permissions below.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the "Software"),
+to use, copy, and modify the Software for academic, educational, and
+personal research purposes only, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+1. ATTRIBUTION REQUIRED. Any use, publication, presentation, or derivative
+   work based on this Software, in whole or in part, must include clear
+   and visible attribution to the author:
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+       Nagendra Singh Yadav
+       ORCID: https://orcid.org/0000-0002-9591-4491
+
+   and, where the use relates to the associated research, a citation to
+   the manuscript this Software accompanies ("Constitutional AI Aligned
+   Financial Decision Making: A Cross Benchmark Empirical Evaluation of
+   Frontier LLMs and the AFIP Production Architecture").
+
+2. NON-COMMERCIAL USE ONLY. Commercial use of this Software — including
+   selling it, sublicensing it, or incorporating it into a commercial
+   product or paid service — is NOT permitted without prior written
+   permission from the author.
+
+3. SHARE-ALIKE ATTRIBUTION. Modified or derivative versions of this
+   Software may be created and shared for non-commercial research or
+   educational purposes, provided this license and the attribution
+   requirement above are retained and applied to the derivative work.
+
+4. NO WARRANTY. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+   KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+   OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+   NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY CLAIM,
+   DAMAGES, OR OTHER LIABILITY ARISING FROM THE USE OF THE SOFTWARE.
+
+For any use outside the scope of this license, including commercial
+licensing, contact the author.
