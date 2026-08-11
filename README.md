@@ -42,7 +42,8 @@ section it corresponds to.
 |---|---|
 | Section 5.1, "MODULE_SCHEMA directory... enforce structured output" | `afip/schemas/module_schemas.py` |
 | Section 5.1, "same Python Anthropic SDK pattern... identical across modules" | `afip/clients/base.py` (`LLMClient` interface) |
-| Algorithm 1, Step 4 (`Claude.MessagesCreate(...)`) | `afip/clients/anthropic_client.py` |
+| Real backbone via Anthropic direct API | `afip/clients/anthropic_client.py::AnthropicClient` |
+| Real backbone via Google Cloud Vertex AI (billing alternative) | `afip/clients/vertex_client.py::VertexClaudeClient` |
 | Algorithm 1, all 7 steps | `afip/algorithms/master_orchestration.py::run` |
 | "DistilBERT safety classifier" (Limitations: unvalidated) | `default_safety_classifier` — explicit, transparent keyword screen, not a claimed DistilBERT model |
 | "FAISS.kNN" retrieval | `default_retriever` — lexical-overlap stand-in, swappable |
@@ -78,6 +79,20 @@ from afip.clients.anthropic_client import AnthropicClient
 os.environ["ANTHROPIC_API_KEY"] = "sk-..."
 client = AnthropicClient(model_id="claude-sonnet-4-6")
 ```
+
+**Alternative: via Google Cloud Vertex AI** (useful if direct Anthropic
+billing isn't available in your region/for your card):
+
+```python
+from afip.clients.vertex_client import VertexClaudeClient
+
+client = VertexClaudeClient(project_id="your-gcp-project-id", region="us-east5")
+```
+
+Requires `pip install "anthropic[vertex]"`, a GCP project with Vertex AI
+enabled, Claude enabled in Vertex AI Model Garden, and authentication (in
+Colab: `from google.colab import auth; auth.authenticate_user()`; elsewhere:
+`gcloud auth application-default login`).
 
 Pass this (and equivalent clients you write for GPT-4o, Gemini, LLaMA,
 Mistral, Grok — each is a ~40-line subclass of `LLMClient`) into
