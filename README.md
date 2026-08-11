@@ -20,7 +20,7 @@ section it corresponds to.
 - The statistical methodology the paper describes in prose — paired
   bootstrap significance testing and Bonferroni correction — as actual,
   unit-tested code (`afip/evaluation/stats.py`), not just a sentence.
-- A small (9-case), original, hand-authored demo dataset spanning all four
+- A small (11-case, including 2 unsafe-query cases), original, hand-authored demo dataset spanning all four
   modules, used to prove the pipeline and statistics are wired correctly.
 - 31 passing unit/integration tests (`pytest tests/`).
 
@@ -50,8 +50,10 @@ section it corresponds to.
 | Section 6, "P-values from paired bootstrap (10,000 resamples)... Bonferroni corrected... α = 0.05/14" | `afip/evaluation/stats.py::paired_bootstrap_test`, `bonferroni_correct` |
 | Table 6A / Table 7 win/loss/nonsignificant counts | `afip/evaluation/stats.py::summarize_family` |
 | Section 6, "keeping AFIP wrapper... identical" across six backbones | `afip/evaluation/harness.py::run_evaluation` (backbone-agnostic by construction) |
-| n=1,020 test suite | `data/sample_cases.jsonl` — **9-case original demo subset only**, see Status above |
-| Section 4.6 "Metrics" (field-level correctness definitions) | `afip/evaluation/scoring.py::score_case` |
+| n=1,020 test suite | `data/sample_cases.jsonl` — **11-case original demo subset only**, see Status above |
+| Section 4.6 "Metrics" (field-level correctness definitions) | `afip/evaluation/scoring.py::score_case`, `classify_field_errors` |
+| Corrected safety-compliance logic (unsafe-case recall vs. benign false-positive rate, not a blended "flags = failure" count) | `afip/evaluation/scoring.py::classify_safety_case`, `safety_summary` |
+| Hallucination-rate scope note (true hallucination requires evidence-attribution not yet in the schema; not computed by proxy) | `afip/evaluation/scoring.py` module docstring |
 
 ## Quickstart
 
@@ -100,7 +102,7 @@ afip/
   evaluation/scoring.py                # per-case correctness criteria
   evaluation/stats.py                  # paired bootstrap + Bonferroni
   evaluation/harness.py                # end-to-end evaluation runner
-data/sample_cases.jsonl                # 9-case original demo dataset
+data/sample_cases.jsonl                # 11-case original demo dataset (9 benign + 2 unsafe)
 tests/                                 # 31 pytest tests
 run_demo.py                            # end-to-end demo entry point
 results/                               # written by run_demo.py (gitignored except .gitkeep)

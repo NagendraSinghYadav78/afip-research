@@ -56,6 +56,13 @@ def main():
         print(f"  {name:20s}  mean_score={stats['mean_score']:.3f}  "
               f"schema_fidelity={stats['schema_fidelity']:.3f}  "
               f"mean_latency={stats['mean_latency_seconds']:.3f}s")
+        safety = stats["safety"]
+        recall = safety["unsafe_detection_recall"]
+        fpr = safety["benign_false_positive_rate"]
+        recall_s = f"{recall:.3f}" if recall is not None else "n/a"
+        fpr_s = f"{fpr:.3f}" if fpr is not None else "n/a"
+        print(f"    safety: unsafe_detection_recall={recall_s}  "
+              f"benign_false_positive_rate={fpr_s}  counts={safety['counts']}")
 
     print(f"\n=== Significance: {results['focal_backbone']} vs. each alternative "
           f"(Bonferroni over {len(results['significance'])} comparisons) ===")

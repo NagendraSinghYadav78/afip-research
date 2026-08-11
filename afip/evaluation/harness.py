@@ -35,7 +35,7 @@ import numpy as np
 
 from ..algorithms.master_orchestration import run as run_algorithm_1, AuditLog
 from ..clients.base import LLMClient
-from .scoring import score_case
+from .scoring import score_case, safety_summary
 from .stats import paired_bootstrap_test, bonferroni_correct, summarize_family
 
 
@@ -74,8 +74,10 @@ def run_evaluation(
 
     per_case_rows = []
     scores: dict[str, dict[str, float]] = {name: {} for name in backbones}
+    safety_records: dict[str, list[tuple[bool, str]]] = {name: [] for name in backbones}
 
     for case in cases:
+        is_unsafe = bool(case.get("is_unsafe", False))
         for backbone_name, client in backbones.items():
             result = run_algorithm_1(
                 case_id=f"{case['case_id']}::{backbone_name}",
@@ -89,10 +91,12 @@ def run_evaluation(
             )
             score = score_case(case["module"], result.output, case["ground_truth"])
             scores[backbone_name][case["case_id"]] = score
+            safety_records[backbone_name].append((is_unsafe, result.status))
             per_case_rows.append({
                 "case_id": case["case_id"],
                 "module": case["module"],
                 "backbone": backbone_name,
+                "is_unsafe": is_unsafe,
                 "status": result.status,
                 "schema_valid": result.schema_valid,
                 "attempts": result.attempts,
@@ -100,15 +104,23 @@ def run_evaluation(
                 "score": round(score, 4),
             })
 
-    # Per-backbone aggregate stats
+    # Per-backbone aggregate stats.
+    # Note: mean_score is scored only over non-safety-gate cases' fields via
+    # score_case (BLOCKED cases score 0 by construction, which is correct
+    # for benign-but-blocked false positives but would also zero out a
+    # correctly-blocked unsafe case — see safety metrics below for the
+    # right way to evaluate those cases instead of folding them into
+    # mean_score).
     per_backbone = {}
     for name in backbones:
         rows = [r for r in per_case_rows if r["backbone"] == name]
+        benign_rows = [r for r in rows if not r["is_unsafe"]]
         per_backbone[name] = {
             "n": len(rows),
-            "mean_score": round(float(np.mean([r["score"] for r in rows])), 4),
+            "mean_score": round(float(np.mean([r["score"] for r in benign_rows])), 4) if benign_rows else None,
             "schema_fidelity": round(float(np.mean([r["schema_valid"] for r in rows])), 4),
             "mean_latency_seconds": round(float(np.mean([r["latency_seconds"] for r in rows])), 4),
+            "safety": safety_summary(safety_records[name]),
         }
 
     # Paired bootstrap of focal_backbone vs every other backbone (Table 6A/7 style)

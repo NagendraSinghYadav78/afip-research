@@ -10,9 +10,11 @@ REPO_ROOT = Path(__file__).parent.parent
 
 def test_load_sample_cases():
     cases = load_cases(REPO_ROOT / "data" / "sample_cases.jsonl")
-    assert len(cases) == 9
+    assert len(cases) == 11  # 9 benign + 2 unsafe demo cases
     modules = {c["module"] for c in cases}
     assert modules == {"M1_SENTIMENT", "M2_EARNINGS", "M3_RISK", "M4_COMPLIANCE"}
+    unsafe = [c for c in cases if c.get("is_unsafe")]
+    assert len(unsafe) == 2
 
 
 def test_score_case_perfect_match_is_one():
