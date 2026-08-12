@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "AFIP Research Companion Code"
+authors:
+  - family-names: "Yadav"
+    given-names: "Nagendra Singh"
+    orcid: "https://orcid.org/0000-0002-9591-4491"
+repository-code: "https://github.com/NagendraSinghYadav78/afip-research"
+license: "LicenseRef-Custom-Attribution-NonCommercial"
+date-released: 2026-08-11
+version: "0.1.0"
+abstract: >
+  Reproducible-research companion code for the manuscript "Constitutional AI
+  Aligned Financial Decision Making: A Cross Benchmark Empirical Evaluation
+  of Frontier LLMs and the AFIP Production Architecture." Implements the
+  AFIP master orchestration algorithm, MODULE_SCHEMA definitions, and a
+  paired-bootstrap plus Bonferroni-correction statistical evaluation
+  harness.

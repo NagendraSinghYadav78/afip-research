@@ -140,4 +140,4 @@ results/                               # written by run_demo.py (gitignored exce
 
 ## License
 
-MIT — see LICENSE.
+Attribution required, non-commercial — see LICENSE.
