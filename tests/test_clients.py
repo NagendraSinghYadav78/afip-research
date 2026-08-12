@@ -13,6 +13,16 @@ def test_vertex_client_module_importable_without_credentials():
     assert hasattr(vertex_client, "VertexClaudeClient")
 
 
+def test_groq_client_module_importable_without_credentials():
+    """
+    Same pattern as vertex_client: the module must import cleanly even if
+    the 'groq' package or GROQ_API_KEY isn't present; only constructing
+    GroqLlamaClient should raise.
+    """
+    from afip.clients import groq_llama_client
+    assert hasattr(groq_llama_client, "GroqLlamaClient")
+
+
 def test_mock_client_satisfies_llmclient_interface():
     client = MockClient("test-model")
     assert isinstance(client, LLMClient)

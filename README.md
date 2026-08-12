@@ -44,6 +44,7 @@ section it corresponds to.
 | Section 5.1, "same Python Anthropic SDK pattern... identical across modules" | `afip/clients/base.py` (`LLMClient` interface) |
 | Real backbone via Anthropic direct API | `afip/clients/anthropic_client.py::AnthropicClient` |
 | Real backbone via Google Cloud Vertex AI (billing alternative) | `afip/clients/vertex_client.py::VertexClaudeClient` |
+| Real LLaMA 3 70B backbone via Groq (free tier, no card required) | `afip/clients/groq_llama_client.py::GroqLlamaClient` |
 | Algorithm 1, all 7 steps | `afip/algorithms/master_orchestration.py::run` |
 | "DistilBERT safety classifier" (Limitations: unvalidated) | `default_safety_classifier` — explicit, transparent keyword screen, not a claimed DistilBERT model |
 | "FAISS.kNN" retrieval | `default_retriever` — lexical-overlap stand-in, swappable |
@@ -93,6 +94,20 @@ Requires `pip install "anthropic[vertex]"`, a GCP project with Vertex AI
 enabled, Claude enabled in Vertex AI Model Garden, and authentication (in
 Colab: `from google.colab import auth; auth.authenticate_user()`; elsewhere:
 `gcloud auth application-default login`).
+
+**LLaMA 3 70B via Groq** (free tier, no card required as of mid-2026 — verify
+current terms at console.groq.com before relying on this):
+
+```python
+from afip.clients.groq_llama_client import GroqLlamaClient
+
+client = GroqLlamaClient()  # reads GROQ_API_KEY from environment
+```
+
+Requires `pip install groq`. Note: Groq's free tier currently serves
+`llama-3.3-70b-versatile`, not `llama-3-70b` — document the exact model
+string used in Section 4.1 if you run this, since the version difference is
+worth disclosing.
 
 Pass this (and equivalent clients you write for GPT-4o, Gemini, LLaMA,
 Mistral, Grok — each is a ~40-line subclass of `LLMClient`) into
