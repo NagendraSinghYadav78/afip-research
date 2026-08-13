@@ -1,0 +1,19 @@
+# Exact dependency versions used to produce the results reported in the
+# paper's Table 4.8-1 (synthetic validation) and Table 4.8-2 (real Groq/
+# Llama pilot, executed 2026-08-12). Install with:
+#
+#   pip install -r requirements-lock.txt
+#
+# For general development, requirements.txt / pyproject.toml's version
+# *ranges* are fine; this file exists specifically so a future researcher
+# can reconstruct the exact environment behind a specific reported run,
+# per the reproducibility standard requested in review.
+#
+# Python: 3.12.3
+
+numpy==2.4.4
+scipy==1.17.1
+jsonschema==4.26.0
+anthropic==0.121.0
+groq==1.6.0
+pytest==9.1.1

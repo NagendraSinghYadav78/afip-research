@@ -1,8 +1,9 @@
 # AFIP Research Companion Code
 
-Reproducible-research companion to the manuscript *"Constitutional AI
-Aligned Financial Decision Making: A Cross Benchmark Empirical Evaluation
-of Frontier LLMs and the AFIP Production Architecture."*
+Reproducible-research companion to the manuscript *"Constitutional AI-Aligned
+Financial Decision Making: AFIP Prototype Architecture, Synthetic Pipeline
+Validation, and a Reproducible Cross-Benchmark Evaluation Protocol for
+Frontier LLMs."*
 
 This repository exists to close the single largest reviewer objection
 raised against the manuscript across two review rounds: **the paper
@@ -22,7 +23,7 @@ section it corresponds to.
   unit-tested code (`afip/evaluation/stats.py`), not just a sentence.
 - A small (11-case, including 2 unsafe-query cases), original, hand-authored demo dataset spanning all four
   modules, used to prove the pipeline and statistics are wired correctly.
-- 31 passing unit/integration tests (`pytest tests/`).
+- 45 passing unit/integration tests (`pytest tests/`).
 
 **What this is *not*, and should not be mistaken for:**
 - This does **not** reproduce the paper's n=1,020 / 14-benchmark / 50,400-
@@ -44,7 +45,7 @@ section it corresponds to.
 | Section 5.1, "same Python Anthropic SDK pattern... identical across modules" | `afip/clients/base.py` (`LLMClient` interface) |
 | Real backbone via Anthropic direct API | `afip/clients/anthropic_client.py::AnthropicClient` |
 | Real backbone via Google Cloud Vertex AI (billing alternative) | `afip/clients/vertex_client.py::VertexClaudeClient` |
-| Real LLaMA 3 70B backbone via Groq (free tier, no card required) | `afip/clients/groq_llama_client.py::GroqLlamaClient` |
+| Real Llama 3.3 70B backbone via Groq (free tier, no card required) | `afip/clients/groq_llama_client.py::GroqLlamaClient` |
 | Algorithm 1, all 7 steps | `afip/algorithms/master_orchestration.py::run` |
 | "DistilBERT safety classifier" (Limitations: unvalidated) | `default_safety_classifier` — explicit, transparent keyword screen, not a claimed DistilBERT model |
 | "FAISS.kNN" retrieval | `default_retriever` — lexical-overlap stand-in, swappable |
@@ -62,7 +63,7 @@ section it corresponds to.
 ```bash
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-pytest tests/ -v          # 31 tests, no API key required
+pytest tests/ -v          # 45 tests, no API key required
 python run_demo.py        # runs the full pipeline on synthetic backbones
 ```
 
@@ -95,7 +96,7 @@ enabled, Claude enabled in Vertex AI Model Garden, and authentication (in
 Colab: `from google.colab import auth; auth.authenticate_user()`; elsewhere:
 `gcloud auth application-default login`).
 
-**LLaMA 3 70B via Groq** (free tier, no card required as of mid-2026 — verify
+**Llama 3.3 70B via Groq** (free tier, no card required as of mid-2026 — verify
 current terms at console.groq.com before relying on this):
 
 ```python
@@ -109,7 +110,7 @@ Requires `pip install groq`. Note: Groq's free tier currently serves
 string used in Section 4.1 if you run this, since the version difference is
 worth disclosing.
 
-Pass this (and equivalent clients you write for GPT-4o, Gemini, LLaMA,
+Pass this (and equivalent clients you write for GPT-4o, Gemini, Llama,
 Mistral, Grok — each is a ~40-line subclass of `LLMClient`) into
 `afip.evaluation.harness.run_evaluation` in place of `MockClient` instances.
 **This will make real, billed API calls.** Before running at the paper's
@@ -133,7 +134,7 @@ afip/
   evaluation/stats.py                  # paired bootstrap + Bonferroni
   evaluation/harness.py                # end-to-end evaluation runner
 data/sample_cases.jsonl                # 11-case original demo dataset (9 benign + 2 unsafe)
-tests/                                 # 31 pytest tests
+tests/                                 # 45 pytest tests
 run_demo.py                            # end-to-end demo entry point
 results/                               # written by run_demo.py (gitignored except .gitkeep)
 ```

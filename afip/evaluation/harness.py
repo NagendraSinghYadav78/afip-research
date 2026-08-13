@@ -7,8 +7,8 @@ keeping AFIP wrapper, MODULE_SCHEMA definitions, FINANCIAL_CONSTITUTION_PROMPT
 and all evaluation harnesses identical") and Table 6A / Table 7.
 
 This is that harness, runnable end-to-end. It:
-  1. loads a labelled case set (data/sample_cases.jsonl by default — a
-     9-case ORIGINAL DEMO subset, not the paper's n=1020 dataset),
+  1. loads a labelled case set (data/sample_cases.jsonl by default — an
+     11-case ORIGINAL DEMO subset, not the paper's planned n~1020 dataset),
   2. runs afip.algorithms.master_orchestration.run for every (case, backbone)
      pair, keeping the pipeline identical across backbones,
   3. scores each output against ground truth (afip.evaluation.scoring),
@@ -105,63 +105,89 @@ def run_evaluation(
             })
 
     # Per-backbone aggregate stats.
-    # Note: mean_score is scored only over non-safety-gate cases' fields via
-    # score_case (BLOCKED cases score 0 by construction, which is correct
-    # for benign-but-blocked false positives but would also zero out a
-    # correctly-blocked unsafe case — see safety metrics below for the
-    # right way to evaluate those cases instead of folding them into
-    # mean_score).
+    #
+    # IMPORTANT METRIC-DEFINITION NOTE (fixed after external review): a
+    # safety-gate block is correct system behavior, not a schema failure or
+    # a zero-latency inference call. Earlier versions of this function
+    # averaged schema_valid and latency_seconds over ALL cases, including
+    # BLOCKED ones — that penalizes correct safety behavior as if it were a
+    # schema defect, and deflates the inference-latency estimate with
+    # spurious 0.0s entries. Both are now computed only over cases that
+    # actually reached inference (status != "BLOCKED"); safety-gate
+    # behavior is reported separately via `safety_summary` /
+    # `safety_block_rate`.
     per_backbone = {}
     for name in backbones:
         rows = [r for r in per_case_rows if r["backbone"] == name]
         benign_rows = [r for r in rows if not r["is_unsafe"]]
+        inference_rows = [r for r in rows if r["status"] != "BLOCKED"]
+        latencies = [r["latency_seconds"] for r in inference_rows]
+
         per_backbone[name] = {
             "n": len(rows),
+            "n_reached_inference": len(inference_rows),
             "mean_score": round(float(np.mean([r["score"] for r in benign_rows])), 4) if benign_rows else None,
-            "schema_fidelity": round(float(np.mean([r["schema_valid"] for r in rows])), 4),
-            "mean_latency_seconds": round(float(np.mean([r["latency_seconds"] for r in rows])), 4),
+            "schema_fidelity": (
+                round(float(np.mean([r["schema_valid"] for r in inference_rows])), 4)
+                if inference_rows else None
+            ),
+            "safety_block_rate": round(1 - len(inference_rows) / len(rows), 4) if rows else None,
+            "mean_latency_seconds": round(float(np.mean(latencies)), 4) if latencies else None,
+            "median_latency_seconds": round(float(np.median(latencies)), 4) if latencies else None,
+            "p90_latency_seconds": round(float(np.percentile(latencies, 90)), 4) if latencies else None,
             "safety": safety_summary(safety_records[name]),
         }
 
-    # Paired bootstrap of focal_backbone vs every other backbone (Table 6A/7 style)
-    case_ids = [c["case_id"] for c in cases]
-    focal_scores = np.array([scores[focal_backbone][cid] for cid in case_ids])
+    # Paired bootstrap of focal_backbone vs every other backbone (Table 6A/7 style).
+    # A pilot run with only one backbone (nothing to compare against) is a
+    # legitimate use case (see the real Groq/Llama pilot in the paper's
+    # Section 4.8/4.9) — skip significance testing rather than raising, and
+    # say so explicitly in the result.
+    other_backbones = [name for name in backbones if name != focal_backbone]
 
-    raw_p = {}
-    diffs = {}
-    for name in backbones:
-        if name == focal_backbone:
-            continue
-        other_scores = np.array([scores[name][cid] for cid in case_ids])
-        boot = paired_bootstrap_test(focal_scores, other_scores, n_resamples=n_resamples, seed=seed)
-        raw_p[name] = boot.p_value
-        diffs[name] = boot.observed_diff
+    if not other_backbones:
+        significance = []
+        family_summary = {"wins": 0, "losses": 0, "nonsignificant": 0}
+        corrected_alpha = None
+    else:
+        case_ids = [c["case_id"] for c in cases]
+        focal_scores = np.array([scores[focal_backbone][cid] for cid in case_ids])
 
-    corrected_alpha, corrected = bonferroni_correct(raw_p, alpha=alpha)
-    directions = {name: (1 if diffs[name] >= 0 else -1) for name in raw_p}
-    family_summary = summarize_family(corrected, directions)
+        raw_p = {}
+        diffs = {}
+        for name in other_backbones:
+            other_scores = np.array([scores[name][cid] for cid in case_ids])
+            boot = paired_bootstrap_test(focal_scores, other_scores, n_resamples=n_resamples, seed=seed)
+            raw_p[name] = boot.p_value
+            diffs[name] = boot.observed_diff
 
-    significance = [
-        {
-            "backbone": r.label,
-            "observed_diff": round(diffs[r.label], 4),
-            "p_raw": round(r.p_raw, 5),
-            "bonferroni_alpha": round(r.p_threshold, 6),
-            "significant": r.significant,
-            "outcome": family_summary["detail"][r.label],
-        }
-        for r in corrected
-    ]
+        corrected_alpha, corrected = bonferroni_correct(raw_p, alpha=alpha)
+        directions = {name: (1 if diffs[name] >= 0 else -1) for name in raw_p}
+        family_summary_full = summarize_family(corrected, directions)
+        family_summary = {k: v for k, v in family_summary_full.items() if k != "detail"}
+
+        significance = [
+            {
+                "backbone": r.label,
+                "observed_diff": round(diffs[r.label], 4),
+                "p_raw": round(r.p_raw, 5),
+                "bonferroni_alpha": round(r.p_threshold, 6),
+                "significant": r.significant,
+                "outcome": family_summary_full["detail"][r.label],
+            }
+            for r in corrected
+        ]
 
     return {
         "per_case": per_case_rows,
         "per_backbone": per_backbone,
         "significance": significance,
-        "family_summary": {k: v for k, v in family_summary.items() if k != "detail"},
+        "family_summary": family_summary,
         "focal_backbone": focal_backbone,
         "n_resamples": n_resamples,
         "alpha": alpha,
         "audit_log_verified": audit_log.verify() if audit_log else None,
+        "single_backbone_pilot": not other_backbones,
     }
 
 

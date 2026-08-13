@@ -1,11 +1,11 @@
 """
-LLaMA 3 70B via Groq — free-tier backbone client.
+Llama 3.3 70B via Groq — free-tier backbone client.
 
 Paper reference: same interface as afip.clients.anthropic_client.AnthropicClient
 (Algorithm 1, Step 4), routed through Groq instead of a paid/self-hosted
 endpoint. Groq's free tier (as of mid-2026) requires no credit card and
 hosts Llama 3.3 70B directly with generous rate limits (~1,000 requests/day),
-making it the most practical way to get real LLaMA 3 70B backbone results
+making it the most practical way to get real Llama 3.3 70B backbone results
 for Table 6A / 7A / 7B without payment friction.
 
 Note: the paper's Table 1 specifies "LLaMA 3 70B"; Groq's current free

@@ -11,6 +11,8 @@ dependencies = [
 
 [project.optional-dependencies]
 anthropic = ["anthropic>=0.30"]
+vertex = ["anthropic[vertex]>=0.30"]
+groq = ["groq>=1.0"]
 dev = ["pytest>=7.4"]
 
 [build-system]

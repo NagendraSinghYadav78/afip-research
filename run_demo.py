@@ -55,7 +55,10 @@ def main():
     for name, stats in results["per_backbone"].items():
         print(f"  {name:20s}  mean_score={stats['mean_score']:.3f}  "
               f"schema_fidelity={stats['schema_fidelity']:.3f}  "
-              f"mean_latency={stats['mean_latency_seconds']:.3f}s")
+              f"safety_block_rate={stats['safety_block_rate']:.3f}  "
+              f"mean_latency={stats['mean_latency_seconds']:.3f}s  "
+              f"median_latency={stats['median_latency_seconds']:.3f}s  "
+              f"p90_latency={stats['p90_latency_seconds']:.3f}s")
         safety = stats["safety"]
         recall = safety["unsafe_detection_recall"]
         fpr = safety["benign_false_positive_rate"]

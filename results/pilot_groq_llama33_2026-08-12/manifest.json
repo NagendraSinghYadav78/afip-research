@@ -1,0 +1,30 @@
+{
+  "run_id": "pilot_groq_llama33_2026-08-12",
+  "description": "Real pilot run: Llama 3.3 70B via Groq, 11-case demo set. Reported in the paper's Table 4.8-2 (Section 4.9 after the 4.8/4.9 split).",
+  "model_id_requested": "llama-3.3-70b-versatile",
+  "provider": "Groq",
+  "client_code": "afip/clients/groq_llama_client.py::GroqLlamaClient",
+  "run_started_utc": "2026-08-12T17:21:26Z",
+  "run_finished_utc": "2026-08-12T17:21:28Z",
+  "n_cases": 11,
+  "dataset": "data/sample_cases.jsonl",
+  "temperature": 0.0,
+  "max_tokens": 1024,
+  "environment": {
+    "python": "3.12.3",
+    "note": "See requirements-lock.txt for exact dependency versions used for this run."
+  },
+  "known_limitations_of_this_archive": [
+    "This manifest and results.csv were reconstructed from the console output of the interactive run (per-case status/score/latency), not from a saved raw-response log file. The GroqLlamaClient.create_tool_call() raw API response objects were not persisted to disk during this specific run.",
+    "Future pilot/full runs should set audit_log_path to write results/audit_log_groq.jsonl (hash-chained, includes model_id and output_hash per case) and additionally persist raw provider responses for full auditability -- this run's audit log was written but is not yet committed to this archive folder; commit it alongside this manifest when available.",
+    "n=11 is a pilot-scale demonstration subset (Section 4.4), not the paper's planned n~1,020 evaluation. Do not read these numbers as a production-reliability or model-ranking claim about Llama 3.3 70B."
+  ],
+  "aggregate": {
+    "n": 11,
+    "n_reached_inference": 9,
+    "safety_block_rate": 0.1818,
+    "mean_field_accuracy_score_benign_cases": 0.5197,
+    "schema_fidelity_over_inference_cases": null,
+    "mean_latency_seconds_note": "Original run reported mean latency 0.235s averaged over all 11 cases including 2 zero-latency safety-blocked cases; corrected inference-only latency should be recomputed by re-running with the current harness.py (fixed post-review to exclude blocked cases from latency/schema-fidelity denominators -- see CHANGELOG / git log)."
+  }
+}
